@@ -1,16 +1,11 @@
-﻿using colors.main;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using colors.main;
 
 namespace colors.main
 {
-
-    enum ColorTypes
+    [Flags]
+    internal enum ColorTypes
     {
-
         Red = 1,
         Blue = 2,
         Yellow = 4,
@@ -19,32 +14,27 @@ namespace colors.main
         Green = 6
     }
 
-    interface IColor<T>
+    internal interface IColor<T>
     {
-
         bool Equals(IColor<T> other);
-
-        String ToString();
-
-        IColor<T> add(IColor<T> color);
-
+        string ToString();
+        IColor<T> Add(IColor<T> color);
         T GetColorType();
     }
 
-    abstract class baseColor<T> : IColor<T>
+    internal abstract class BaseColor<T> : IColor<T>
     {
-
         private readonly T _colorType;
-        
+
         public T GetColorType()
         {
             return _colorType;
         }
-         public baseColor(T type)
+
+        protected BaseColor(T type)
         {
             _colorType = type;
         }
-
 
         public override string ToString()
         {
@@ -54,55 +44,61 @@ namespace colors.main
 
         public bool Equals(IColor<T> other)
         {
-            var a = this.GetColorType();
+            var a = GetColorType();
             var b = other.GetColorType();
 
             return a.Equals(b);
         }
 
-        public virtual  IColor<T> add(IColor<T> color)
+        public virtual IColor<T> Add(IColor<T> color)
         {
             throw new NotImplementedException();
         }
-
-     
     }
 
-    class Color : baseColor<ColorTypes>
+    internal class Color : BaseColor<ColorTypes>
     {
-
-
         public Color(ColorTypes t) : base(t)
         {
-
         }
 
-        public override IColor<ColorTypes> add(IColor<ColorTypes> a)
+        public override IColor<ColorTypes> Add(IColor<ColorTypes> a)
         {
-
-            if (this.Equals(a))
+            if (Equals(a))
                 return new Color(a.GetColorType());
 
             var a1 = a.GetColorType();
-            var b1 = this.GetColorType();
+            var b1 = GetColorType();
 
-            var result = a1 & b1;
+            var result = a1 | b1;
 
             return new Color(result);
         }
-
-
     }
- 
-   
 }
 
 namespace DDD_Excercise
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
+            var red = new Color(ColorTypes.Red);
+            var yellow = new Color(ColorTypes.Yellow);
+            var blue = new Color(ColorTypes.Blue);
+
+
+            Assert("Orange", red.Add(yellow).ToString());
+            Assert("Orange", yellow.Add(red).ToString());
+            Assert("Red", red.Add(red).ToString());
+            Assert("Green", yellow.Add(blue).ToString());
+            Assert("Purple", blue.Add(red).ToString());
+        }
+
+        private static void Assert(string expected, string actual)
+        {
+            Console.WriteLine("Test: expected {0}, actual  {1}", expected, actual);
+            Console.WriteLine(expected == actual ? "PASS" : "Fail");
         }
     }
 }
